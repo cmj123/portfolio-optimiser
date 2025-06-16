@@ -4,7 +4,7 @@ import streamlit as st
 import plotly.express as px 
 import streamlit_shadcn_ui as ui
 from PIL import Image
-from interpretations import appinfo
+from interpretations import appinfo, optimization_strategies_info
 
 
 def main():
@@ -23,6 +23,8 @@ def main():
 
     appinfo()
 
+    with st.expander("View Optimisation Strategies"):
+        optimization_strategies_info()
 
 if __name__ == "__main__":
     main()
