@@ -26,5 +26,56 @@ def main():
     with st.expander("View Optimisation Strategies"):
         optimization_strategies_info()
 
+    if "stocks" not in st.session_state:
+        st.session_state.stocks_list = ["AAPL, TSLA, MSFT, SNOW"]
+
+    default_tickers_str = ", ".join(st.session_state.stocks_list)
+    
+    cont1 = st.container(border=True)
+    cont1.markdown("### Input Parameters")
+    stocks = cont1.text_input(
+        "Enter Tickers (separated by commas)", value = default_tickers_str
+    )
+    start, end = cont1.columns(2)
+    start_date = start.date_input(
+        "Start Date",
+        max_value=dt.date.today() - dt.timedelta(days=1),
+        min_value=dt.date.today() - dt.timedelta(days=1250),
+        value=dt.date.today() - dt.timedelta(days=365)
+    )
+
+    end_date = end.date_input(
+        "End Date",
+        max_value=dt.date.today(),
+        min_value=start_date + dt.timedelta(days=1),
+        value=dt.date.today(),
+    )
+
+    col1, col2 = cont1.columns(2)
+    optimisation_criterion = col1.selectbox(
+        "Optimisation Objective",
+        options=[
+            "Maximize Sharpe Ratio",
+            "Minimize Volatility",
+            "Maximize Sortino Ratio",
+            "Minimize Tracking Error",
+            "Maximize Information Ratio",
+            "Minimize Conditional Value-at-Risk",
+        ],
+    )
+
+    riskFreeRate_d = col2.number_input(
+        "Risk Free Rate (%)",
+        min_value=0.00,
+        max_value=100.00,
+        step=0.001,
+        format="%0.3f",
+        value=4.432,
+        help = "10 Year Bond Yield"
+    )
+
+    calc = cont1.button("Calculate")
+    riskFreeRate = riskFreeRate_d/100
+
 if __name__ == "__main__":
     main()
