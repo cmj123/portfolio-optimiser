@@ -17,7 +17,7 @@ class PortfolioOptimiser:
         self.optimisation_criterion = optimisation_criterion
         self.riskFreeRate =  riskFreeRate
         self.meanReturns, self.covMatrix = self.getData()
-        # self.benchmark = self.benchmarkReturns()
+        self.benchmark = self.benchmarkReturns()
         # (
         #     self.optimized_returns,
         #     self.optimized_std,
@@ -25,6 +25,15 @@ class PortfolioOptimiser:
         #     self.efficientList,
         #     self.targetReturns,
         # ) = self.calculatedResults()
+    
+    def benchmarkReturns(self):
+        try:
+            benchmark_data = yf.download("^GSPC", self.start, self.end)
+        except:
+            raise ValueError("Unable to download data, try again later!")
+        benchmark_returns = benchmark_data["Close"].pct_change().dropna()
+        st.table(benchmark_returns)
+        return benchmark_returns
     
     def basicMetrics(self):
         if not all(s.isupper() for s in self.stocks):
