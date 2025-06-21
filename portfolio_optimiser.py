@@ -18,13 +18,42 @@ class PortfolioOptimiser:
         self.riskFreeRate =  riskFreeRate
         self.meanReturns, self.covMatrix = self.getData()
         self.benchmark = self.benchmarkReturns()
-        # (
-        #     self.optimized_returns,
-        #     self.optimized_std,
-        #     self.optimized_allocation,
-        #     self.efficientList,
-        #     self.targetReturns,
-        # ) = self.calculatedResults()
+        (
+            self.optimized_returns,
+            self.optimized_std,
+            self.optimized_allocation,
+            self.efficientList,
+            self.targetReturns,
+        ) = self.calculatedResults()
+        
+        st.write([self.optimized_returns,
+            self.optimized_std,
+            self.optimized_allocation,
+            self.efficientList,
+            self.targetReturns])
+
+    def optimisation_function(self, constraintSet=(0,1)):
+
+        numAssets = len(self.meanReturns)
+        
+        constraints = {
+            "type": "eq",
+            "fun": lambda x: np.sum(x) - 1,
+        }
+        bound = constraintSet
+        bounds = tuple(bound for asset in range(numAssets))
+
+        if self.optimisation_criterion == "Maximize Sharpe Ratio":
+            return sc.minimize(
+                self.sharpe,
+                numAssets * [1.0 / numAssets],
+                method="SLSQP",
+                bounds=bounds,
+                constraints=constraints
+            )
+        
+    def calculatedResults(self):
+        optimised_portfolio = (self.optimisation_function())
     
     def benchmarkReturns(self):
         try:
@@ -32,7 +61,6 @@ class PortfolioOptimiser:
         except:
             raise ValueError("Unable to download data, try again later!")
         benchmark_returns = benchmark_data["Close"].pct_change().dropna()
-        st.table(benchmark_returns)
         return benchmark_returns
     
     def basicMetrics(self):
